@@ -1,0 +1,2 @@
+{# <twig:menu name="NAVBAR_END" />: the same render path as {{ menu('NAVBAR_END') }}, minus the template's own variables #}
+{{ menu_render(this.name, this.options, this.render) }}

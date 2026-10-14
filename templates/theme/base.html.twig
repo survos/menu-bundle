@@ -1,0 +1,76 @@
+{#
+ # @SurvosMenu/theme/base.html.twig: the bottom of every menu theme stack (see ThemeRenderer).
+ #
+ # Plain, framework-free markup. A theme above it redefines only the blocks it needs; block('x') is
+ # resolved through the whole stack, so overriding `label` here changes labels everywhere below.
+ #
+ # Context: `menu` (MenuView), `options` (render options), and inside the item blocks `item` (MenuItemView).
+ # An item is drawn by the block named after its kind: item_link, item_submenu, item_heading, item_divider,
+ # item_search. Nothing here decides anything: the view is already pruned, translated and matched.
+ #}
+
+{%- block menu -%}
+<ul{{ menu_attrs(menu.attributes, {class: 'menu'}) }}>
+    {%- for item in menu.children %}{{ block('item') }}{% endfor -%}
+</ul>
+{%- endblock -%}
+
+{%- block item -%}{{ block('item_' ~ item.kind.value) }}{%- endblock -%}
+
+{%- block item_link -%}
+<li{{ menu_attrs(item.attributes, {class: ['menu-item', item.current ? options.currentClass, item.ancestor ? options.ancestorClass]}) }}>{{ block('link') }}</li>
+{%- endblock -%}
+
+{%- block link -%}
+<a{{ menu_attrs(item.linkAttributes, {href: item.uri, title: item.tooltip, 'aria-current': item.current ? 'page' : null}) }}>{{ block('icon') }}{{ block('label') }}{{ block('badge') }}</a>
+{%- endblock -%}
+
+{%- block item_submenu -%}
+<li{{ menu_attrs(item.attributes, {class: ['menu-item', 'menu-submenu', item.ancestor ? options.ancestorClass]}) }}>
+    {{- block('submenu_toggle') -}}
+    {{- block('submenu') -}}
+</li>
+{%- endblock -%}
+
+{%- block submenu_toggle -%}
+{%- if item.uri -%}{{ block('link') }}{%- else -%}<span class="menu-toggle">{{ block('icon') }}{{ block('label') }}</span>{%- endif -%}
+{%- endblock -%}
+
+{%- block submenu -%}
+<ul class="menu-children">
+    {%- for item in item.children %}{{ block('submenu_item') }}{% endfor -%}
+</ul>
+{%- endblock -%}
+
+{# an item inside a submenu; themes whose dropdown entries differ from top-level items override this #}
+{%- block submenu_item -%}{{ block('item') }}{%- endblock -%}
+
+{%- block item_heading -%}
+<li{{ menu_attrs(item.attributes, {class: 'menu-heading', role: 'presentation'}) }}>{{ block('icon') }}{{ block('label') }}</li>
+{%- endblock -%}
+
+{%- block item_divider -%}<li class="menu-divider" role="separator"></li>{%- endblock -%}
+
+{# a search box: uri is where it submits (GET), label the placeholder, extra 'name' the field (default q) #}
+{%- block item_search -%}
+<li{{ menu_attrs(item.attributes, {class: 'menu-search'}) }}>{{ block('search_form') }}</li>
+{%- endblock -%}
+
+{%- block search_form -%}
+{%- set field = item.extra('name', 'q') -%}
+<form method="get" action="{{ item.uri }}" role="search">
+    <input{{ menu_attrs(item.linkAttributes, {type: 'search', name: field, value: app.request.query.get(field) ?? '', placeholder: item.label, 'aria-label': item.label, autocomplete: 'off'}) }}>
+</form>
+{%- endblock -%}
+
+{%- block icon -%}
+{%- if item.icon %}<span class="menu-icon" data-icon="{{ item.icon }}" aria-hidden="true"></span>{% endif -%}
+{%- endblock -%}
+
+{%- block label -%}
+{%- if item.safeLabel and options.allow_safe_labels|default(false) %}{{ item.label|raw }}{% else %}{{ item.label }}{% endif -%}
+{%- endblock -%}
+
+{%- block badge -%}
+{%- if item.badge %}<span class="menu-badge">{{ item.badge.value }}</span>{% endif -%}
+{%- endblock -%}

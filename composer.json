@@ -1,0 +1,41 @@
+{
+    "name": "survos/menu-bundle",
+    "description": "Menus built by event listeners and drawn by composable Twig themes (Twig BlockChain), on top of knplabs/knp-menu",
+    "keywords": ["menu", "navigation", "knp-menu", "twig", "symfony-ux"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tac Tacelosky",
+            "email": "tacman@gmail.com"
+        }
+    ],
+    "type": "symfony-bundle",
+    "require": {
+        "php": "^8.5",
+        "knplabs/knp-menu": "^3.8",
+        "knplabs/knp-menu-bundle": "^3.8",
+        "survos/kit-bundle": "^2.5",
+        "symfony/config": "^8.1",
+        "symfony/dependency-injection": "^8.1",
+        "symfony/event-dispatcher": "^8.1",
+        "symfony/http-foundation": "^8.1",
+        "symfony/http-kernel": "^8.1",
+        "symfony/twig-bundle": "^8.1",
+        "symfony/ux-twig-component": "^3",
+        "twig/twig": "^3.29|^4.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^13.0",
+        "symfony/translation": "^8.1"
+    },
+    "suggest": {
+        "symfony/translation": "Menu labels are translated with each item's translation domain when a translator is available."
+    },
+    "autoload": {
+        "psr-4": {
+            "Survos\\MenuBundle\\": "src/",
+            "Survos\\MenuBundle\\Tests\\": "tests/"
+        }
+    }
+}
