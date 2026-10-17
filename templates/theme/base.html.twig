@@ -33,7 +33,7 @@
 {%- endblock -%}
 
 {%- block submenu_toggle -%}
-{%- if item.uri -%}{{ block('link') }}{%- else -%}<span class="menu-toggle">{{ block('icon') }}{{ block('label') }}</span>{%- endif -%}
+{%- if item.uri -%}{{ block('link') }}{%- else -%}<span{{ menu_attrs(item.linkAttributes, {class: 'menu-toggle'}) }}>{{ block('icon') }}{{ block('label') }}</span>{%- endif -%}
 {%- endblock -%}
 
 {%- block submenu -%}

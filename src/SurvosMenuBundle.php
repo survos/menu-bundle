@@ -16,6 +16,7 @@ use Survos\MenuBundle\Service\Menus;
 use Survos\MenuBundle\Service\MenuSpecProviderInterface;
 use Survos\MenuBundle\Twig\Components\Menu;
 use Survos\MenuBundle\Twig\MenuExtension;
+use Survos\MenuBundle\Twig\MenuLinkExtension;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -50,7 +51,8 @@ final class SurvosMenuBundle extends AbstractSurvosBundle implements CompilerPas
 
         $builder->register(MenuViewFactory::class)
             ->setArgument('$matcher', new Reference(MatcherInterface::class))
-            ->setArgument('$translator', new Reference('translator', ContainerInterface::NULL_ON_INVALID_REFERENCE));
+            ->setArgument('$translator', new Reference('translator', ContainerInterface::NULL_ON_INVALID_REFERENCE))
+            ->setArgument('$linkDecorators', new TaggedIteratorArgument('survos_menu.link_attributes_decorator'));
 
         $builder->register(ThemeRenderer::class)
             ->setArgument('$twig', new Reference('twig'))
@@ -72,6 +74,10 @@ final class SurvosMenuBundle extends AbstractSurvosBundle implements CompilerPas
 
         $builder->register(MenuExtension::class)
             ->setArgument('$menus', new Reference(Menus::class))
+            ->addTag('twig.extension');
+
+        $builder->register(MenuLinkExtension::class)
+            ->setArgument('$views', new Reference(MenuViewFactory::class))
             ->addTag('twig.extension');
 
         $builder->register(Menu::class)

@@ -31,6 +31,7 @@ final class MenuViewFactory
     public function __construct(
         private readonly MatcherInterface $matcher,
         private readonly ?TranslatorInterface $translator = null,
+        private readonly iterable $linkDecorators = [],
     ) {
     }
 
@@ -96,10 +97,7 @@ final class MenuViewFactory
         $attributes = $item->getAttributes();
         unset($attributes['divider_prepend'], $attributes['divider_append']);
 
-        $linkAttributes = $item->getLinkAttributes();
-        foreach ((array) $item->getExtra('data_attributes', []) as $name => $value) {
-            $linkAttributes['data-'.$name] ??= $value;
-        }
+        $linkAttributes = $this->linkAttributes($item, $options);
 
         $badge = Badge::fromMixed($item->getExtra('badge'));
         if (null === $badge && is_array($badges = $item->getExtra('badges')) && [] !== $badges) {
@@ -125,6 +123,20 @@ final class MenuViewFactory
             children: $children,
             extras: array_diff_key($item->getExtras(), array_flip(self::CONSUMED_EXTRAS)),
         );
+    }
+
+    /** Shared with legacy themes. Call only for items that will actually render. */
+    public function linkAttributes(ItemInterface $item, array $options = []): array
+    {
+        $attributes = $item->getLinkAttributes();
+        foreach ((array) $item->getExtra('data_attributes', []) as $name => $value) {
+            $attributes['data-'.$name] ??= $value;
+        }
+        foreach ($this->linkDecorators as $decorator) {
+            $attributes = array_replace($attributes, $decorator->decorate($item, $this->label($item), $options));
+        }
+
+        return $attributes;
     }
 
     private function label(ItemInterface $item): string

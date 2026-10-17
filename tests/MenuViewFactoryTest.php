@@ -100,4 +100,28 @@ final class MenuViewFactoryTest extends MenuTestCase
 
         self::assertSame(ItemKind::Link, $view->kind);
     }
+
+    public function testLinkDecoratorsRunAfterFilteringAndRetainExistingAttributes(): void
+    {
+        $root = $this->root();
+        $root->addChild('hidden')->setDisplay(false);
+        $root->addChild('empty')->setExtra('submenu', true);
+        $root->addChild('visible', ['label' => 'Public label', 'uri' => '/public'])
+            ->setLinkAttribute('data-action', 'example#open')
+            ->setExtra('data_attributes', ['context' => 'public']);
+        $decorator = new class implements \Survos\MenuBundle\Renderer\LinkAttributesDecoratorInterface {
+            public array $seen = [];
+
+            public function decorate(\Knp\Menu\ItemInterface $item, string $label, array $options = []): array
+            {
+                $this->seen[] = [$item->getName(), $label];
+
+                return ['data-explanation' => 'Public copy'];
+            }
+        };
+        $factory = new \Survos\MenuBundle\Renderer\MenuViewFactory(new \Knp\Menu\Matcher\Matcher(), linkDecorators: [$decorator]);
+        $view = $factory->create($root);
+        self::assertSame([['visible', 'Public label']], $decorator->seen);
+        self::assertSame(['data-action' => 'example#open', 'data-context' => 'public', 'data-explanation' => 'Public copy'], $view->children[0]->linkAttributes);
+    }
 }

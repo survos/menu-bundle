@@ -80,3 +80,7 @@ The renderer is also registered with knp as `survos`: `knp_menu_render(menu, {th
 - `MenuDispatcher::createEvent()`: dispatch a `MenuEvent` subclass.
 
 survos/tabler-bundle does all three; see its `docs/menus.md`.
+
+### Link decoration at rendering time
+
+Optional integrations can implement `Renderer\LinkAttributesDecoratorInterface` and tag their service `survos_menu.link_attributes_decorator`. It receives the item and translated label after composable filtering and returns additional attributes on the existing target. Legacy templates use `menu_link_attributes(item)` at the point they render a link (then escape attributes). This generic hook powers optional tour annotations without rebuilding menus or depending on a JavaScript renderer. Custom decorators must not treat browser visibility as authorization.
